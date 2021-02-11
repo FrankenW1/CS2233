@@ -2,8 +2,10 @@ from typing import Optional, List, Any
 
 
 def number_length(num: int) -> int:
-    num = len(num)
-    print('Number_length = ', num)
+    num = str(num)
+    q = len(num)
+    print(q)
+    return q
 
     """
     Create a function that takes a number and returns its length.
@@ -20,9 +22,12 @@ def number_length(num: int) -> int:
 
 def list_of_multiples(num: int, length: Optional[int]) -> List[int]:
     x = 0
-    while x <= length:
-        length[x] = num * (x + 1)
-    print(length)
+    z = []
+    while x < length:
+        z.append(num * (x + 1))
+        x = x + 1
+    print(z)
+    return z
 
     """
     Create a function that takes two numbers as arguments (num, length)
@@ -82,3 +87,5 @@ def cat_dog(num: int) -> str:
     cat_dog(15) -> "CatDog"
     """
     pass
+
+
