@@ -4,8 +4,9 @@ from typing import Optional, List, Any
 def number_length(num: int) -> int:
     num = str(num)
     q = len(num)
+    q = int(q)
     print(q)
-    return q
+
 
     """
     Create a function that takes a number and returns its length.
@@ -28,6 +29,7 @@ def list_of_multiples(num: int, length: Optional[int]) -> List[int]:
         x = x + 1
     print(z)
     return z
+    
 
     """
     Create a function that takes two numbers as arguments (num, length)
@@ -44,7 +46,9 @@ def list_of_multiples(num: int, length: Optional[int]) -> List[int]:
 
 
 def normalize(input_str) -> str:
-    print(input_str.lower() + '!')
+    input_str = input_str.lower() + '!'
+    input_str = input_str.capitalize()
+    print(input_str)
 
     """
     Create a function that takes a string. If the string is all uppercase characters,
@@ -88,4 +92,4 @@ def cat_dog(num: int) -> str:
     """
     pass
 
-
+normalize('HELLO THERE')
