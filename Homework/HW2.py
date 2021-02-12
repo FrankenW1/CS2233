@@ -46,9 +46,13 @@ def list_of_multiples(num: int, length: Optional[int]) -> List[int]:
 
 
 def normalize(input_str) -> str:
-    input_str = input_str.lower() + '!'
-    input_str = input_str.capitalize()
-    print(input_str)
+
+    if input_str.upper() == input_str:
+        input_str = input_str.lower() + '!'
+        input_str = input_str.capitalize()
+        print(input_str)
+    else:
+        print(input_str)
 
     """
     Create a function that takes a string. If the string is all uppercase characters,
