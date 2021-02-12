@@ -92,4 +92,3 @@ def cat_dog(num: int) -> str:
     """
     pass
 
-normalize('HELLO THERE')
