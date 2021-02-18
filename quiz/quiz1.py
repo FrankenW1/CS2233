@@ -14,7 +14,7 @@ def first(my_list, number):
         return my_list[-1]
 
 
-first(lst, x)
+
 # while True:
 
 # if x2 == 'start' or 'first':
