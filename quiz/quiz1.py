@@ -1,36 +1,30 @@
 lst = ['This is the first string in the list', 'This is the last string in the list']
 x = input('enter start, first, or end: ')
 
-x2 = x.lower()
-if x2 == 'start':
-    print(lst[0])
 
-if x2 == 'first':
-    print(lst[0])
+def first(my_list, number):
+    x2 = x.lower()
+    if x2 == 'start':
+        return my_list[0]
 
-if x2 == 'end':
-    print(lst[-1])
+    if x2 == 'first':
+        return my_list[0]
 
-
-
-
+    if x2 == 'end':
+        return my_list[-1]
 
 
+first(lst, x)
+# while True:
 
+# if x2 == 'start' or 'first':
+#     print(lst[0])
+#    break
 
+#  if x2 == 'end':
+#    print(lst[-1])
+#   break
 
-
-
-#while True:
-
-   # if x2 == 'start' or 'first':
-   #     print(lst[0])
-    #    break
-
-  #  if x2 == 'end':
-    #    print(lst[-1])
-     #   break
-
-   # else:
-     #   print("you have made an invalid choice")
-     #   break
+# else:
+#   print("you have made an invalid choice")
+#   break
