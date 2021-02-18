@@ -5,8 +5,8 @@ def number_length(num: int) -> int:
     num = str(num)
     q = len(num)
     q = int(q)
-    print(q)
 
+    return q
 
     """
     Create a function that takes a number and returns its length.
@@ -27,7 +27,7 @@ def list_of_multiples(num: int, length: Optional[int]) -> List[int]:
     while x < length:
         z.append(num * (x + 1))
         x = x + 1
-    print(z)
+
     return z
     
 
@@ -50,9 +50,10 @@ def normalize(input_str) -> str:
     if input_str.upper() == input_str:
         input_str = input_str.lower() + '!'
         input_str = input_str.capitalize()
-        print(input_str)
+        return input_str
     else:
-        print(input_str)
+        return input_str
+
 
     """
     Create a function that takes a string. If the string is all uppercase characters,
@@ -69,13 +70,16 @@ def normalize(input_str) -> str:
 
 def cat_dog(num: int) -> str:
     if (num % 3 == 0) and (num % 5 == 0):
-        print('CatDog')
+        z = 'CatDog'
+        return z
     elif num % 3 == 0:
-        print('Cat')
+        z = 'Cat'
+        return z
     elif num % 5 == 0:
-        print('Dog')
+        z = 'Dog'
+        return z
     else:
-        print(num)
+        return num
 
     """
     Create a function that takes a number as an argument and returns "Cat", "Dog" or "CatDog".
