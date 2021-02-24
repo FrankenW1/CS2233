@@ -14,8 +14,6 @@ def first(my_list, x2):
         return my_list[-1]
 
 
-print(first(lst, 'eNd'))
-
 
 
 # while True:
