@@ -1,9 +1,9 @@
 lst = ['This is the first string in the list', 'This is the last string in the list']
-x = input('enter start, first, or end: ')
+#x = input('enter start, first, or end: ')
 
 
-def first(my_list):
-    x2 = x.lower()
+def first(my_list, x2):
+    x2 = x2.lower()
     if x2 == 'start':
         return my_list[0]
 
@@ -14,7 +14,7 @@ def first(my_list):
         return my_list[-1]
 
 
-
+print(first(lst, 'eNd'))
 
 
 
