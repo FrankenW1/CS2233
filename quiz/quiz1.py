@@ -5,8 +5,7 @@ lst = ['This is the first string in the list', 'This is the last string in the l
 def first(my_list, x2):
     x2 = x2.lower()
     if not my_list:
-        none = 'None'
-        return none
+        return None
     if x2 == 'start':
         return my_list[0]
 
