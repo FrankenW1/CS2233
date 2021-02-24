@@ -159,7 +159,7 @@ def maximum_hourly_data() -> datetime:
         if i >= 2016:
             break
     MaxKey = max(total_dict, key=total_dict.get)
-    final = total_dict[MaxKey]
+    #final = total_dict[]
     return MaxKey
     """
     This function will return hour that produced the maximum total power.
@@ -169,6 +169,8 @@ def maximum_hourly_data() -> datetime:
 
     """
     ...
+data= maximum_hourly_data()
+print("datetime(" + data[0:4] + "," + str(int(data[5:7])) + "," + str(int(data[8:10])) + "," + str(int(data[11:13])) + ")")
 
 
 

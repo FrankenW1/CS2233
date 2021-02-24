@@ -35,8 +35,7 @@ def read_file_pandas():
     return df
 
 
-power = pd.read_csv("C:/Users/wafra/PycharmProjects/CS2233 class/data/power_readings.csv", index_col=0, header=None,
-                    squeeze=True).to_dict()
+power = pd.read_csv("C:/Users/wafra/PycharmProjects/CS2233 class/data/power_readings.csv", index_col=0, header=None, squeeze=True).to_dict()
 key_list = []
 
 read_file()
