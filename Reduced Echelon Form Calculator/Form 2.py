@@ -56,18 +56,12 @@ def echelon_calculator(mat):  # calculates the echelon form of a matrix
         else:
             g = (1 / mat[i][j])
             mat[i] = mult_row_by_num(mat[i], g)  # set the leading element to 1 by setting the ith row =multi_row_by_num of the ith row times 1/ the i,j element
-            for x in range(i + 1, R):
-                print('ah', mat[x][j + 1], mat)
-                z = mat[x][j+1] / mat[x - 1][j] # bottom point / by top point to get difference
-                print('z', z)
-                mat[x] *= z# multiply bottom row by difference to make bottom point = top point
-                print(mat[x]) # add bottom row to top row to cancel out point
-                        # do this for every TP that has a point above it
+            for x in range(i - 1, R):
+                z = 1
+                mat[x] = subtract_row_times_num_to_row(mat[i], mat[x], z)
 
 
             for l in range(i + 1, R):
-                print(mat[l][j])
-                print(mat)
                 a = mat[l][j] / mat[i][j]
                 '''Your code goes here'''  # set a equal to the l,j element of mat divided by the i,j element
                 mat[l] = subtract_row_times_num_to_row(mat[i], mat[l], a)

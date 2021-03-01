@@ -50,8 +50,10 @@ def echelon_calculator(mat):  # calculates the echelon form of a matrix
         else:
             g = (1 / mat[i][j])
             mat[i] = mult_row_by_num(mat[i], g)  # set the leading element to 1 by setting the ith row =multi_row_by_num of the ith row times 1/ the i,j element
-            for x in range(i + 1, R):  # clear out the value above the i,j element. Hint: very similar to the next for loop!
-                mat[i][x] = 0
+            for x in range(i - 1, R):  # clear out the value above the i,j element. Hint: very similar to the next for loop!
+                z = (1 / mat[x][j])
+                mat[x] = subtract_row_times_num_to_row(mat[i], mat[x], 1)
+                                        # COULD NOT FIGURE THIS OUT FOR THE LIFE OF ME
             for l in range(i + 1, R):
                 a = mat[l][j] / mat[i][j]
                 '''Your code goes here'''  # set a equal to the l,j element since i,j element is 1
