@@ -1,4 +1,25 @@
+word = input()
+password = ''
+ml = []
+new = ''
+for x in word:
+    ml.append(x)
+for i in range(len(ml)):
+    if ml[i] == 'i':
+        ml[i] = '1'
+    if ml[i] == 'a':
+        ml[i] = '@'
+    if ml[i] == 'm':
+        ml[i] = 'M'
+    if ml[i] == 'B':
+        ml[i] = '8'
+    if ml[i] == 's':
+        ml[i] = '$'
+for a in ml:
+    new = new + a
+new = new + '!'
 
-my_list = [-3, -2, -1, 0, 1, 2, 3]
-new_list = [ number - 4 for number in my_list if number <= 2 ]
-print(new_list)
+print(new)
+
+
+
