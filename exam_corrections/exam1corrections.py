@@ -38,6 +38,6 @@ def return_last_match(input_str: str) -> str:
         if input_str == t[-1]:
             tl.append(t)
         for i in range(len(tl)):
-            return tl[i]
+            return str(tl[i])
     # forgot to return values as string and not list
 
