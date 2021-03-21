@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from typing import Optional
+import json
 from datetime import datetime, timedelta
 from fastapi import FastAPI, APIRouter, HTTPException
 from homework.hw6 import Student, Classroom
@@ -10,12 +11,8 @@ classroom_router = APIRouter(prefix="/classroom")
 app = FastAPI()
 
 students = []
-students_in_class = []
 classrooms = []
-
-
-# student enpoints
-
+#student enpoints
 
 def convert_student_IDs(student_ids: list):
     for x in range(len(students)):
@@ -25,6 +22,19 @@ def convert_student_IDs(student_ids: list):
 
     return students_in_class
 
+def check_classroom(identifier: str):
+    for x in range(len(classrooms)):
+        if identifier.upper() == classrooms[x].identifier:
+            return x
+
+    raise HTTPException(422, "Classroom not found: Classroom identifier does not match any existing classrooms")
+
+def find_student(student_id: int):
+    for x in range(len(students)):
+        if students[x].student_id == student_id:
+            return students[x]
+
+    raise HTTPException(422, "Student not found: StudentID does not match students created")
 
 @student_router.post("/create")
 def students_create(first_name: str, last_name: str, email: str,
@@ -44,7 +54,6 @@ def students_create(first_name: str, last_name: str, email: str,
                 students.append(stu)
                 return "StudentID: " + str(students[students.index(stu)].student_id)
 
-
 @student_router.post("/read")
 def students_read():
     # hello this doesnt exist dont look at it
@@ -53,7 +62,7 @@ def students_read():
 
 @student_router.post("/update")
 def students_update(student_id: int, first_name: str = None, last_name: str = None,
-                    email: str = None, phone: str = None, infection_date: datetime = None):
+                    email: str = None,phone: str = None, infection_date: datetime = None):
     found = False
 
     for x in range(len(students)):
@@ -69,9 +78,9 @@ def students_update(student_id: int, first_name: str = None, last_name: str = No
             else:
                 raise HTTPException(422, "Duplicate Entry: Email already in use")
 
+
     if found == False:
         raise HTTPException(422, "Student not found: Please check the StudentID and try again")
-
 
 @student_router.delete("/delete")
 def students_delete(student_id: int):
@@ -86,11 +95,11 @@ def students_delete(student_id: int):
     if found == False:
         raise HTTPException(422, "Student not found: Please check the StudentID and try again")
 
-
-# classroom endpoints
+#classroom endpoints
 @classroom_router.post("/create")
 def class_create(abbreviation: str, level: int, description: str, day_of_week: str,
                  start_time: datetime, end_time: datetime, professor: str, students: list):
+
     """The students must be entered using studentID in list form."""
 
     print(students)
@@ -121,15 +130,18 @@ def class_read():
 
 @classroom_router.post("/update")
 def class_update(identifier: str, new_abbreviation: str = None, new_level: int = None,
-                 days_of_week: str = None, start_time: datetime = None, end_time: datetime = None):
+                 days_of_week: str = None, start_time: datetime = None, end_time: datetime = None ):
+
     found = False
+
+
 
     for x in range(len(classrooms)):
         if new_level != classrooms[x].level and new_abbreviation != classrooms[x].abbreviation:
-            if identifier == classrooms[x].identifier:
+            if identifier.upper() == classrooms[x].identifier:
 
-                classrooms[x].abbreviation = new_abbreviation.upper() if new_abbreviation != None else classrooms[
-                    x].abbreviation
+
+                classrooms[x].abbreviation = new_abbreviation.upper() if new_abbreviation != None else classrooms[x].abbreviation
                 classrooms[x].level = new_level if new_level != None else classrooms[x].level
                 classrooms[x].days_of_week = days_of_week if days_of_week != None else classrooms[x].days_of_week
                 classrooms[x].identifier = f"{classrooms[x].abbreviation.upper()}{classrooms[x].level}"
@@ -150,16 +162,17 @@ def class_update(identifier: str, new_abbreviation: str = None, new_level: int =
         else:
             raise HTTPException(422, "Duplicate entries: Classrooms cannot have the same abbreviation and level")
 
+
     if found == False:
         raise HTTPException(422, "Class not found: Please check the class abbreviation and level")
 
 
 @classroom_router.get("/students")
-def class_students(identifier: str, name: str = None):
+def class_students(identifier: str, name: str = None ):
     names_that_begin = []
     found = False
     for x in range(len(classrooms)):
-        if identifier == classrooms[x].identifier:
+        if identifier.upper() == classrooms[x].identifier:
             found = True
             count = len(classrooms[x].students)
             row = classrooms[x].students
@@ -177,7 +190,7 @@ def class_students(identifier: str, name: str = None):
 
 
 @classroom_router.get("/attendance")
-def class_attendance(date: datetime, identifier: str):
+def class_attendance():
     ret = {}
     temp = []
     for i in range(len(classrooms)):
@@ -196,33 +209,39 @@ def class_attendance(date: datetime, identifier: str):
 
 
 @classroom_router.post("/enroll_student")
-def class_enroll_student(class_id: str, student_id: int):
-    for x in range(len(classrooms)):
-        if classrooms[x].identifier == class_id:
-            classrooms[x].students.append(student_id)
-            # return classrooms[x].students
-    ...
+def class_enroll_student(identifier: str, student_id: int):
+    idx = check_classroom(identifier)
+    current_students = classrooms[idx].students
+    student_to_append = find_student(student_id)
+    if student_to_append not in current_students:
+        classrooms[idx].students.append(student_to_append)
+        return classrooms[idx]
+    else:
+        raise HTTPException(422, "Duplicate info: Student already in classroom")
 
 
 @classroom_router.post("/remove_student")
-def class_remove_student(class_id: str, student_id: int):
-    for x in range(len(classrooms)):
-        if classrooms[x].identifier == class_id:
-            classrooms[x].students.remove(student_id)
-            # return classrooms[x].students
-    ...
-
+def class_remove_student(identifier: str, student_id: int):
+    idx = check_classroom(identifier)
+    current_students = classrooms[idx].students
+    student_to_remove = find_student(student_id)
+    if student_to_remove in current_students:
+        classrooms[idx].students.remove(student_to_remove)
+        return classrooms[idx]
+    else:
+        raise HTTPException(422, f"Student not found: Student is not enrolled in class {identifier.upper()}")
 
 @classroom_router.delete("/delete")
-def class_delete(class_id: str):
-    for x in range(len(classrooms)):
-        if classrooms[x].identifier == class_id:
-            classrooms[x].clear()
+def class_delete(identifier: str):
+    idx = check_classroom(identifier)
+    if classrooms[idx] in classrooms:
+        del classrooms[idx]
+        return f"Classroom Deleted: Class {identifier.upper()} has been deleted"
+    else:
+        raise HTTPException(422, "Class identifier error: Class doesn't exist")
 
-    ...
 
-
-# general endpoints
+#general endpoints
 @app.delete("/reset")
 def reset():
     students.clear()
@@ -231,8 +250,25 @@ def reset():
 
 
 @app.post("/outbreak")
-def outbreak():
-    ...
+def outbreak(date: datetime, infection_type: str, identifier: str):
+    infection_type = infection_type.lower()
+    local_status = ""
+    if timedelta(days=14) > datetime.now() - date:
+        local_status = "quarantined"
+    elif timedelta(days=14) < datetime.now() - date:
+        local_status = "vaccinated"
+
+    if infection_type[0] == 'c':
+        for x in range(len(classrooms)):
+            if classrooms[x].identifier == identifier:
+                for j in range(len(classrooms[x].students)):
+                    students[j].infection_date = date
+                    students[j].status = local_status
+    elif infection_type[0] == 's':
+        for x in range(len(students)):
+            if students[x].identifier == identifier:
+                students[x].infection_date = date
+                students[x].status = local_status
 
 
 app.include_router(student_router)

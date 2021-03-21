@@ -13,7 +13,12 @@ class Classroom:
         self.end_time = end_time
         self.professor = professor
         self.students = students
+        self.shh_key = self.new_id()
 
+    @classmethod
+    def new_id(self):
+        self.newid += 1
+        return self.newid
 
 
 
