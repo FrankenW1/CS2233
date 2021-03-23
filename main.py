@@ -13,6 +13,7 @@ app = FastAPI()
 students = []
 classrooms = []
 
+
 #####################SKETYCHY CODE DO NOT TOUCH ############################
 #student endpoints
 def load_data_students():
@@ -44,6 +45,44 @@ def update_data_classrooms(classrooms: any):
     pickle.dump(classrooms, fileObj)
     fileObj.close()
 ################## END OF SKETYCHY CODE #####################
+
+
+def nuke_student(student_id: int):
+    load_data_students()
+    load_data_classrooms()
+
+    for i in range(len(classrooms)):
+        for x in range(len(classrooms[i].students)):
+            if classrooms[i].students[x].student_id == student_id:
+                del classrooms[i].students[x]
+                update_data_classrooms(classrooms)
+                update_data_students(students)
+
+
+def duplicate_students(list_of_students: any, student: any):
+    for i in range(len(list_of_students)):
+        if list_of_students[i].student_id == student.student_id:
+            raise HTTPException(422, "student already in class")
+
+    return False
+
+
+def duplicate_classrooms(list_of_classrooms: any, classroom: any):
+    for i in range(len(list_of_classrooms)):
+        if list_of_classrooms[i].identifier == classroom.identifier:
+            raise HTTPException(422, "classroom already exists")
+    return None
+
+
+def append_to_classroom(index: int, thing_to_append:any):
+    l = classrooms[index].students
+    if thing_to_append not in l:
+        l.append(thing_to_append)
+        classrooms[index].students = l
+        update_data_classrooms(classrooms)
+    else:
+        raise HTTPException(422, "Student is already in classroom")
+
 
 def convert_student_IDs(student_ids: list):
     for x in range(len(students)):
@@ -127,6 +166,7 @@ def students_delete(student_id: int):
     load_data_students()
     for x in range(len(students)):
         if student_id == students[x].student_id:
+            nuke_student(student_id)
             del students[x]
             found = True
             update_data_students(students)
@@ -146,19 +186,23 @@ def class_create(abbreviation: str, level: int, description: str, day_of_week: s
     start_time_formatted = start_time.strftime(time_format)
     end_time_formatted = end_time.strftime(time_format)
 
+    clrm = Classroom(abbreviation, level, description, day_of_week, start_time_formatted, end_time_formatted,
+                     professor, convert_student_IDs(students))
+    load_data_classrooms()
+    load_data_students()
+
     if classrooms == []:
-        clrm = Classroom(abbreviation, level, description, day_of_week, start_time_formatted, end_time_formatted,
-                         professor, convert_student_IDs(students))
+
         classrooms.append(clrm)
         update_data_classrooms(classrooms)
         return "Class Abbreviation: " + clrm.identifier
-    for x in range(len(classrooms)):
-        load_data_classrooms()
-        if classrooms[x].abbreviation == abbreviation and classrooms[x].level == level:
-            raise HTTPException(422, "Classroom already exists: Classrooms cannot have the same abbreviation and level")
-        else:
-            clrm = Classroom(abbreviation, level, description, day_of_week, start_time,
-                             end_time, professor, convert_student_IDs(students))
+    else:
+
+        if duplicate_classrooms(classrooms, clrm) == False:
+            classrooms.append(clrm)
+            update_data_classrooms(classrooms)
+            return "Class Abbreviation: " + clrm.identifier
+        elif duplicate_classrooms(classrooms, clrm) == None:
             classrooms.append(clrm)
             update_data_classrooms(classrooms)
             return "Class Abbreviation: " + clrm.identifier
@@ -193,17 +237,21 @@ def class_update(identifier: str, new_abbreviation: str = None, new_level: int =
 
                     classrooms[x].start_time = start_time_formatted
                     classrooms[x].end_time = end_time_formatted
+                    update_data_classrooms(classrooms)
                 else:
                     classrooms[x].end_time = classrooms[x].end_time
                     classrooms[x].start_time = classrooms[x].start_time
+                    update_data_classrooms(classrooms)
 
                 update_data_classrooms(classrooms)
                 return classrooms
 
         else:
+            update_data_classrooms(classrooms)
             raise HTTPException(422, "Duplicate entries: Classrooms cannot have the same abbreviation and level")
 
     if found == False:
+        update_data_classrooms(classrooms)
         raise HTTPException(422, "Class not found: Please check the class abbreviation and level")
 
 
@@ -231,23 +279,44 @@ def class_students(identifier: str, name: str = None ):
 
 
 @classroom_router.get("/attendance")
-def class_attendance():
-    ret = {}
-    temp = []
+def class_attendance(identifier: str, date: datetime):
+
+    load_data_students()
     load_data_classrooms()
-    for i in range(len(classrooms)):
-        if classrooms[i].identifier == identifier:
-            for x in range(len(classrooms[i].students)):
-                datetimeFormat = '%Y-%m-%d %H:%M:%S.%f'
-                diff = datetime.datetime.strptime(date, datetimeFormat) \
-                       - datetime.datetime.strptime(students[x].infection_date, datetimeFormat)
-                if diff.days <= 3:
-                    ret["sick"] = classrooms[x].student_id
-                elif diff.days > 3 and diff.days <= 14:
-                    ret["online"] = classrooms[x].student_id
-                else:
-                    ret["present"] = classrooms[x].student_id
-    return ret
+
+    attendance = { "Present": [], "Online": [], "Sick": [] }
+
+    present = 0
+    present_l = [present]
+
+    online = 0
+    online_l = [online]
+
+    sick = 0
+    sick_l = [sick]
+
+    x = check_classroom(identifier.upper())
+    temp = classrooms[x].students
+
+    for i in range(len(temp)):
+        if temp[i].infection_date == None:
+            present += 1
+            present_l[0] = present
+            present_l.append(temp[i])
+        elif timedelta(days=3) >= date - temp[i].infection_date:
+            sick += 1
+            sick_l[0] = sick
+            sick_l.append(temp[i])
+        elif timedelta(days=14) >= date - temp[i].infection_date:
+            online += 1
+            online_l[0] = online
+            online_l.append(temp[i])
+
+    attendance.update({"Present": present_l})
+    attendance.update({"Online": online_l})
+    attendance.update({"Sick": sick_l})
+
+    return attendance
 
 
 @classroom_router.post("/enroll_student")
@@ -255,29 +324,17 @@ def class_enroll_student(identifier: str, student_id: int):
     load_data_students()
     load_data_classrooms()
 
-
     for x in range(len(classrooms)):
-        load_data_students()
-        load_data_classrooms()
+
         if classrooms[x].identifier == identifier.upper():
-            if find_student(student_id) not in classrooms[x].students:
-                classrooms[x].students.append(find_student(student_id))
+            if duplicate_students(classrooms[x].students, find_student(student_id)) == False:
+                append_to_classroom(x, find_student(student_id))
+                #classrooms[x].students.append(find_student(student_id))
                 update_data_classrooms(classrooms)
+
                 return classrooms[x]
 
-    raise HTTPException(422, "Duplicate info: Student already in classroom")
-
-
-
-    """idx = check_classroom(identifier)
-    current_students = classrooms[idx].students
-    student_to_append = find_student(student_id)
-    if student_to_append not in current_students:
-        classrooms[idx].students.append(student_to_append)
-        update_data_classrooms(classrooms)
-        return classrooms[idx]
-    else:
-        raise HTTPException(422, "Duplicate info: Student already in classroom")"""
+    raise HTTPException(422, "Classroom doesn't exist: Check identifier")
 
 
 @classroom_router.post("/remove_student")
@@ -285,15 +342,17 @@ def class_remove_student(identifier: str, student_id: int):
     load_data_students()
     load_data_classrooms()
 
-    idx = check_classroom(identifier)
-    current_students = classrooms[idx].students
-    student_to_remove = find_student(student_id)
-    if student_to_remove in current_students:
-        classrooms[idx].students.remove(student_to_remove)
-        update_data_classrooms(classrooms)
-        return classrooms[idx]
-    else:
-        raise HTTPException(422, f"Student not found: Student is not enrolled in class {identifier.upper()}")
+    x = check_classroom(identifier.upper())
+    temp = classrooms[x].students
+
+    for i in range(len(temp)):
+        if temp[i].student_id == student_id:
+            del temp[i]
+            update_data_classrooms(classrooms)
+            return classrooms[i]
+
+    raise HTTPException(422, "Student is not in classroom.")
+
 
 @classroom_router.delete("/delete")
 def class_delete(identifier: str):
@@ -322,32 +381,47 @@ def reset():
 
 @app.post("/outbreak")
 def outbreak(date: datetime, infection_type: str, identifier: str):
+    """Infection Type:
+    Class: entire class was infected
+    Student: Only one student was infected
+    """
+    load_data_classrooms()
+    load_data_students()
+
     infection_type = infection_type.lower()
     local_status = ""
-    if timedelta(days=14) > datetime.now() - date:
-        local_status = "quarantined"
-    elif timedelta(days=14) < datetime.now() - date:
-        local_status = "vaccinated"
 
     if infection_type[0] == 'c':
-        for x in range(len(classrooms)):
-            if classrooms[x].identifier == identifier:
-                for j in range(len(classrooms[x].students)):
-                    students[j].infection_date = date
-                    students[j].status = local_status
-                    update_data_students(students)
-    elif infection_type[0] == 's':
-        for x in range(len(students)):
-            if students[x].identifier == identifier:
-                students[x].infection_date = date
-                students[x].status = local_status
+        x = check_classroom(identifier.upper())
+        members = classrooms[x].students
+        for i in range(len(members)):
+            members[i].infection_date = date
+
+            if timedelta(days=14) > datetime.now() - members[i].infection_date:
+                members[i].status = "quarantined"
                 update_data_students(students)
+            else:
+                members[i].status = "healthy"
+                update_data_students(students)
+
+            update_data_classrooms(classrooms)
+            return f"Outbreak for Classroom {identifier} has been set infection dates have been set: {date}"
+
+    elif infection_type[0] == "s":
+        for i in range(len(students)):
+            if students[i].student_id == int(identifier):
+                students[i].infection_date = date
+                if timedelta(days=14) > datetime.now() - students[i].infection_date:
+                    students[i].status = "quarantined"
+                    update_data_students(students)
+                else:
+                    students[i].status = "healthy"
+                    update_data_students(students)
+
+                return f"Outbreak for student {identifier} has been set"
+
+    raise HTTPException(422, "Make sure identifier is formated to match infection type")
 
 
 app.include_router(student_router)
 app.include_router(classroom_router)
-
-"""
-if __name__ == '__main__':
-    students = load_data_students()
-    classrooms = load_data_classrooms()"""
