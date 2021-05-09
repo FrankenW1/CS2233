@@ -30,7 +30,7 @@ def matrix_multiplication(mat1, mat2):
        for i in range(Rows_1):
            for j in range(Cols_2):
                for k in range(Rows_2):
-                   product_matrix += mat1[i][k] * mat2[k][j]
+                   product_matrix.append(mat1[i][k] * mat2[k][j])
     return product_matrix
 
 

@@ -1,0 +1,8 @@
+import pygame
+from pygame import *
+import os
+import random
+from dinosaur import Dinosaur
+from obstacle import Obstacle
+from obstacle2 import Obstacle2
+from obstacle_fly import flyer

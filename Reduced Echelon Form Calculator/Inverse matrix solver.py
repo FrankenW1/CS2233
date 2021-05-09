@@ -14,30 +14,10 @@ def make_extended_matrix(mat):
                 mat[m] = mat[m] +[1.0]
             else:
                 mat[m] = mat[m] +[0.0]
-                '''
-            if m == x:
-                mat[m] = mat[m]+[1.0]
-        temp = []
-        for z in range(C):
-            if m == x:
-                temp.append(1)
-            else:
-                temp.append(0)
-    mat.append(temp)    #extends the matrix with an identity matrix on the right
-    '''
-
     return mat
 
 
-'''
-def mult_row_by_num(row, a):  # multiple a row by a constant
-    for i in range(
-            C + 1):  # needs to iterate through each element in the augmented row, so a for loop through the columns+1
-        row[i] *= a  # needs to set the kth element equal to a*(kth element of the row)
-    print('row', row)
 
-    return row
-'''
 
 def under_nonzero_finder(mat, m, k):  # find the first nonzero entry in a column after the kth entry. Need to read in the matrix and desired row because we read the matrix as a list of rows
     first_nonzero_loc = R + 1  # if all elements under the starting location are zero, it will return R+1
