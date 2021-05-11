@@ -2,11 +2,13 @@ from Calculate_Taxes import *
 from Assets import *
 from Required_Expenses import *
 
-def calc_expenses(costt)
+# def calc_expenses(costt)
 
-def amount_left(expenses, assets):
+# def amount_left(expenses, assets):
+
 
 if __name__ == '__main__':
+
     income = int(input('Please Enter Income'))
     state = input('Please Enter State')
     Invest = int(input('Please enter investment'))
@@ -20,7 +22,7 @@ Retirement = (income2 / 12) * 0.1
 # -----------------------------------------
 
 # ---------ASSETS------------
-Investments = Assets(percent_yield=0.1, cost = Invest, currently_invested= Curr)
+Investments = Assets(percent_yield=0.1, cost = 0, currently_invested= Curr)
 
 # ---------------------------
 
@@ -35,6 +37,8 @@ k401 = Expenses(cost = Retirement)
 
 for name in Expenses:
     list_of_expenses.append(name)
+
+print(list_of_expenses)
 # ---------------------------
 
 Additional_income_invest = Investments.calculate_additional_income()
